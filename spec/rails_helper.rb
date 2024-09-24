@@ -7,6 +7,14 @@ abort("The Rails environment is running in production mode!") if Rails.env.produ
 require 'rspec/rails'
 require "simplecov"
 SimpleCov.start
+
+# def raw_post(action, params, body)
+#   @request.env['RAW_POST_DATA'] = body
+#   response = post(action, params)
+#   @request.env.delete('RAW_POST_DATA')
+#   response
+# end
+
 # Add additional requires below this line. Rails is not loaded until this point!
 
 # Requires supporting ruby files with custom matchers and macros, etc, in
@@ -64,6 +72,7 @@ RSpec.configure do |config|
   config.filter_rails_from_backtrace!
   # arbitrary gems may also be filtered via:
   # config.filter_gems_from_backtrace("gem name")
+  config.formatter = :documentation 
 end
 Shoulda::Matchers.configure do |config|
   config.integrate do |with|

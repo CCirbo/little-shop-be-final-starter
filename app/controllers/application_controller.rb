@@ -7,6 +7,10 @@ class ApplicationController < ActionController::API
     render json: ErrorSerializer.format_errors([e.message]), status: :not_found
   end
 
+  rescue_from ArgumentError do |e|
+    render json: ErrorSerializer.format_errors([ e.message ]), status: :unprocessable_entity
+  end
+
   def render_error
     render json: ErrorSerializer.format_invalid_search_response,
         status: :bad_request
