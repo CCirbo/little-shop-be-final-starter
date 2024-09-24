@@ -1,22 +1,17 @@
 class Api::V1::Merchants::CouponsController < ApplicationController
     def index
       coupons = Coupon.where(merchant_id: params[:merchant_id])
-      # require 'pry'; binding.pry
       render json: CouponSerializer.new(coupons)
     end
   
     def show
-    
       coupon = Coupon.find(params[:coupon_id])
       render json: CouponSerializer.new(coupon), status: :ok
     end
   
     def create
       merchant = Merchant.find(params[:merchant_id])
-      # require 'pry'; binding.pry
       coupon = merchant.coupons.new(coupon_params)
-      coupon.merchant_id = params[:merchant_id]
-      # require 'pry'; binding.pry
       coupon.validate_coupon(merchant)  
    
       if coupon.save
@@ -40,10 +35,9 @@ class Api::V1::Merchants::CouponsController < ApplicationController
     coupon = Coupon.find(params[:coupon_id])
     status = request.fullpath.split("/")[-1]
     coupon.activate_or_deactivate(status)
+    coupon.save
     render json: CouponSerializer.new(coupon), status: :ok
    end
-
-
   
     private
   

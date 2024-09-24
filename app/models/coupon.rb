@@ -5,7 +5,7 @@ class Coupon < ApplicationRecord
   validates :code, presence: true
   validates :dollar_off, presence: false
   validates :percent_off, presence: false
-  validates :active, presence: true
+  validates :active, presence: false
 
 
   def validate_coupon(merchant)
@@ -21,29 +21,32 @@ class Coupon < ApplicationRecord
     end
     
     # get count of all of merchant's coupons
-    if merchant_active_coupon_count == 5
+    if merchant_active_coupon_count == 5 && self.active == true
       raise ArgumentError.new("Merchant can only have a maximum of five active coupons")
     end
-    # return true if merchant coupon.count is less than 5
-    # return false if coupon.count is 5 or greater
-
-    # name validator
-    # check all merchant coupons and validate uniqueness
-
-    # code validator
+   
+     # code validator
     # check all coupons and validate code uniqueness
+    if Coupon.exists?(code: self.code)
+      raise ArgumentError.new("Coupon code must be unique")
+    end
+    # require 'pry'; binding.pry
+    # get merchant.invoice?? 
+    # if coupon drops invoice below zero dollar amount it needs to be set to zero
+
+    # A coupon code from a Merchant only applies to Items sold by that Merchant. Get
+    # invoice with the coupon and make sure the merchant id is the same or return an 
+    # error
   end
+   
 
   def merchant_active_coupon_count
     Coupon.where({ merchant_id: merchant.id, active:true }).count
   end
 
-
-  
-
-
   def activate_or_deactivate(status)
-    if status == "activate" && merchant_active_coupon_count >= 5
+    if status == "activate" && merchant_active_coupon_count == 5
+      raise ArgumentError.new("Merchant can only have a maximum of five active coupons")
     elsif status == "activate" 
       self.active = true
     elsif status == "deactivate"
@@ -52,11 +55,3 @@ class Coupon < ApplicationRecord
   end
 end
 
-# def validate_coupon
-#   if self.percent_off == nil && self.dollar_off == nil
-#     #msg you need percent off or dollar off change the errors: msg  status: 400 or 404
-#     return render json: { errors: coupon.errors.full_messages }, status: :unprocessable_entity
-#   else 
-#     return self
-#   end
-# end
