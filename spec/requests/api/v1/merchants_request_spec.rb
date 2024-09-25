@@ -197,6 +197,29 @@ describe "Merchant endpoints", :type => :request do
       
       expect(response).to have_http_status(:no_content)
     end
-
   end
+  
+  describe "Merchant invoice coupon counts"
+    it "should return a count of coupons and a count of invoices per merchant" do
+      merchant1 = create(:merchant)
+      merchant2 = create(:merchant)
+      customer = create(:customer)
+      coupon1 = create(:coupon, merchant: merchant1)
+      coupon2 = create(:coupon, merchant: merchant1)
+      coupon3 = create(:coupon, merchant: merchant1)
+      invoices = create_list(:invoice, 5, merchant_id: merchant1.id, customer_id: customer.id)
+      invoices2 = create_list(:invoice, 5, merchant_id: merchant2.id, customer_id: customer.id)
+      items = create_list(:item, 5, merchant_id: merchant1.id)
+     
+      Invoice.first.apply_coupon(coupon1)
+      Invoice.second.apply_coupon(coupon2)
+
+      get "/api/v1/merchants"
+      
+      json = JSON.parse(response.body, symbolize_names: true)
+      expect(json[:data][0][:attributes][:coupons_count]).to eq(3)
+      expect(json[:data][0][:attributes][:invoice_coupon_count]).to eq(2)
+      expect(json[:data][1][:attributes][:coupons_count]).to eq(0)
+      expect(json[:data][1][:attributes][:invoice_coupon_count]).to eq(0)
+    end
 end

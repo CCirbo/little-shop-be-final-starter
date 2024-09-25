@@ -5,17 +5,17 @@ RSpec.configure do |config|
  end
 
 RSpec.describe Coupon, type: :model do
-  describe 'validations' do
-    it { should validate_presence_of(:name)}
-    it { should validate_presence_of(:code)}
+  describe 'Validations' do
+    it { should validate_presence_of(:name).with_message(": You must provide a coupon name.") }
+    it { should validate_presence_of(:code) }
   end
 
-  describe 'relationships' do
+  describe 'Relationships' do
     it { should belong_to :merchant }
     it { should have_many(:invoices)}
   end
 
-  describe 'validate_coupon method' do
+  describe 'Validate_coupon method' do
     it 'raises an error if both percent_off and dollar_off are provided' do
       merchant = create(:merchant)
       coupon = Coupon.new(name: "Test Coupon", code: "TEST10", percent_off: 10, dollar_off: 5, merchant: merchant)
@@ -23,28 +23,29 @@ RSpec.describe Coupon, type: :model do
       expect { coupon.validate_coupon(merchant) }.to raise_error(ArgumentError, "You need to provide either percent_off or dollar_off")
     end
   
-    it 'raises an error if neither percent_off nor dollar_off is provided' do
+    it 'Raises an error if neither percent_off nor dollar_off is provided' do
       merchant = create(:merchant)
       coupon = Coupon.new(name: "Test Coupon", code: "TEST10", merchant: merchant)
   
       expect { coupon.validate_coupon(merchant) }.to raise_error(ArgumentError, "You need to provide either percent_off or dollar_off")
     end
   
-    it 'does not raise an error if only percent_off is provided' do
+    it 'Does not raise an error if only percent_off is provided' do
       merchant = create(:merchant)
       coupon = Coupon.new(name: "Test Coupon", code: "TEST10", percent_off: 10, merchant: merchant)
   
       expect { coupon.validate_coupon(merchant) }.not_to raise_error
     end
   
-    it 'does not raise an error if only dollar_off is provided' do
+    it 'Does not raise an error if only dollar_off is provided' do
       merchant = create(:merchant)
       coupon = Coupon.new(name: "Test Coupon", code: "TEST10", dollar_off: 5, merchant: merchant)
   
       expect { coupon.validate_coupon(merchant) }.not_to raise_error
     end
   end
-  describe 'active coupon limit' do
+
+  describe 'Active coupon limit' do
     it 'raises an error if merchant has 5 active coupons and tries to activate another one' do
       merchant = create(:merchant)
       5.times { create(:coupon, merchant: merchant, active: true) }
@@ -53,7 +54,8 @@ RSpec.describe Coupon, type: :model do
       expect { new_coupon.validate_coupon(merchant) }.to raise_error(ArgumentError, "Merchant can only have a maximum of five active coupons")
     end
   end
-  describe 'activate_or_deactivate method' do
+
+  describe 'Activate_or_deactivate method' do
     it 'activates the coupon if the merchant has less than 5 active coupons' do
       merchant = create(:merchant)
       coupon = create(:coupon, active: false, merchant: merchant)
@@ -79,14 +81,13 @@ RSpec.describe Coupon, type: :model do
     end
   end
 
-  describe 'coupon code uniqueness' do
+  describe 'Coupon code uniqueness' do
     it 'raises an error if a coupon with the same code already exists' do
       merchant = create(:merchant)
       create(:coupon, code: "TEST10", merchant: merchant)
-      coupon = Coupon.new(name: "Test Coupon", code: "TEST10", percent_off: 10, merchant: merchant)
-  
-      expect { coupon.validate_coupon(merchant) }.to raise_error(ArgumentError, "Coupon code must be unique")
+      expect { 
+        Coupon.create!(name: "Test Coupon", code: "TEST10", percent_off: 10, merchant: merchant) 
+      }.to raise_error(ActiveRecord::RecordInvalid, /Code : A unique coupon code is required/)
     end
   end
-
 end
