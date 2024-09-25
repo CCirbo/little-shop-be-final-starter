@@ -7,13 +7,11 @@ class Invoice < ApplicationRecord
   validates :status, inclusion: { in: ["shipped", "packaged", "returned"] }
 
   def apply_coupon(coupon = nil)
-    # require 'pry'; binding.pry
     return total_without_discount(coupon) unless coupon
     raise ArgumentError.new("Coupon is invalid for this merchant") unless coupon.merchant_id == merchant_id
     raise ArgumentError.new("Invoice can only have one coupon") if self.coupon_id
     discounted_total = if coupon.percent_off
                          total_without_discount(coupon) - (total_without_discount(coupon) * coupon.percent_off / 100.0)
-
                        elsif coupon.dollar_off
                          total_without_discount(coupon) - coupon.dollar_off
                        end

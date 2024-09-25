@@ -2,7 +2,6 @@ require "rails_helper"
 
 RSpec.describe "Merchant coupons endpoints" do
   before(:each) do
-  
     @merchant1 = Merchant.create!(name: "Merchant 1")
     @merchant2 = Merchant.create!(name: "Merchant 2")
     @coupon1 = @merchant1.coupons.create!(
@@ -47,7 +46,7 @@ RSpec.describe "Merchant coupons endpoints" do
       json = JSON.parse(response.body, symbolize_names: true)
       expect(response).to be_successful
       expect(json[:data].count).to eq(3)
-    # require 'pry'; binding.pry
+ 
       expect(json[:data][:attributes]).to include(:name, :code, :active)
       expect(json[:data][:attributes][:name]).to eq("SAVEMORE")
       expect(json[:data][:attributes][:name]).to be_a(String)
@@ -106,7 +105,6 @@ RSpec.describe "Merchant coupons endpoints" do
   describe "Create a new coupon" do
     it "can create a coupon when valid attributes are given" do
       coupon_params = { name: "New Coupon", code: "NEW20", percent_off: 20.00, active: true }
-# require 'pry'; binding.pry
       post "/api/v1/merchants/#{@merchant1.id}/coupons",  params: coupon_params
       json = JSON.parse(response.body, symbolize_names: true)
 
@@ -189,7 +187,7 @@ RSpec.describe "Merchant coupons endpoints" do
 
     it "returns an error when the coupon update fails" do
       invalid_coupon_params = {
-        name: "", # Invalid name, triggers validation failure
+        name: "",
         code: "BOGO50",
         percent_off: 50.00,
         active: false
@@ -203,7 +201,7 @@ RSpec.describe "Merchant coupons endpoints" do
     end
   end
 
-  describe "Errors on Params" do
+  describe "Errors on params" do
     it "can return an error message if required name is missing" do
       invalid_coupon_params = { name: "", code: "BOGO25", active: true, dollar_off: nil,
       percent_off: 25.00, } 

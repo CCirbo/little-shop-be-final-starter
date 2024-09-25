@@ -38,13 +38,13 @@ class Api::V1::Merchants::CouponsController < ApplicationController
       end
     end
   
-   def change_status 
-    coupon = Coupon.find(params[:coupon_id])
-    status = request.path.split('/').last
-    coupon.activate_or_deactivate(status)
-    coupon.save
-    render json: CouponSerializer.new(coupon), status: :ok
-   end
+    def change_status 
+      coupon = Coupon.find(params[:coupon_id])
+      status = request.path.split('/').last
+      coupon.activate_or_deactivate(status)
+      coupon.save
+      render json: CouponSerializer.new(coupon), status: :ok
+    end
   
     private
   

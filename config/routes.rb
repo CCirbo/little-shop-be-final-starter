@@ -13,10 +13,6 @@ Rails.application.routes.draw do
   patch "api/v1/merchants/:merchant_id/coupons/:coupon_id", to: "api/v1/merchants/coupons#update"
   patch "api/v1/merchants/:merchant_id/coupons/:coupon_id/activate", to: "api/v1/merchants/coupons#change_status"
   patch "api/v1/merchants/:merchant_id/coupons/:coupon_id/deactivate", to: "api/v1/merchants/coupons#change_status"
-  # custom one for activate
-  # custom one for deactivate
-  # patch "api/v1/merchants/:merchant_id/invoices/:invoice_id", to: "api/v1/merchants/invoices#apply_coupon"
-
 
   namespace :api do
     namespace :v1 do

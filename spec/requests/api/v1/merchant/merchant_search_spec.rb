@@ -7,6 +7,7 @@ RSpec.describe "Search Endpoints" do
     @merchant3 = Merchant.create!(name: "crater lake artists")
     @merchant4 = Merchant.create!(name: "Plates R Us")
   end
+  
   describe "find one merchant" do
     it "returns one merchant by name with case insensitive search" do
       get "/api/v1/merchants/find?name=ate"
