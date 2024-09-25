@@ -6,27 +6,26 @@ class Invoice < ApplicationRecord
   belongs_to :coupon, optional: true
   validates :status, inclusion: { in: ["shipped", "packaged", "returned"] }
 
-  def apply_coupon
-    return total_without_discount unless coupon
-
-    # Ensure the coupon belongs to the correct merchant
+  def apply_coupon(coupon = nil)
+    # require 'pry'; binding.pry
+    return total_without_discount(coupon) unless coupon
     raise ArgumentError.new("Coupon is invalid for this merchant") unless coupon.merchant_id == merchant_id
-
-    # Apply percent-off or dollar-off discount
+    raise ArgumentError.new("Invoice can only have one coupon") if self.coupon_id
     discounted_total = if coupon.percent_off
-                         total_without_discount - (total_without_discount * coupon.percent_off / 100.0)
+                         total_without_discount(coupon) - (total_without_discount(coupon) * coupon.percent_off / 100.0)
+
                        elsif coupon.dollar_off
-                         total_without_discount - coupon.dollar_off
-                       else
-                         total_without_discount
+                         total_without_discount(coupon) - coupon.dollar_off
                        end
 
-    # Ensure the total doesn't drop below 0, and round to two decimal places
     [discounted_total, 0].max.round(2)
   end
 
-  def total_without_discount
-    # Sum up all invoice items and ensure it's rounded to two decimal places
+  def total_without_discount(coupon = nil)
+   if coupon
+    self.coupon_id = coupon.id
+    self.save
+   end
     invoice_items.sum { |item| item.unit_price * item.quantity }.round(2)
   end
 end

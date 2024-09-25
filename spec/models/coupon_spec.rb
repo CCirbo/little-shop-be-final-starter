@@ -6,8 +6,8 @@ RSpec.configure do |config|
 
 RSpec.describe Coupon, type: :model do
   describe 'validations' do
-    it { should validate_presence_of(:name)}
-    it { should validate_presence_of(:code)}
+    it { should validate_presence_of(:name).with_message(": You must provide a coupon name.") }
+    it { should validate_presence_of(:code) }
   end
 
   describe 'relationships' do
@@ -83,9 +83,11 @@ RSpec.describe Coupon, type: :model do
     it 'raises an error if a coupon with the same code already exists' do
       merchant = create(:merchant)
       create(:coupon, code: "TEST10", merchant: merchant)
-      coupon = Coupon.new(name: "Test Coupon", code: "TEST10", percent_off: 10, merchant: merchant)
-  
-      expect { coupon.validate_coupon(merchant) }.to raise_error(ArgumentError, "Coupon code must be unique")
+      # coupon = Coupon.create!(name: "Test Coupon", code: "TEST10", percent_off: 10, merchant: merchant)
+  # require 'pry'; binding.pry
+      expect { 
+        Coupon.create!(name: "Test Coupon", code: "TEST10", percent_off: 10, merchant: merchant) 
+      }.to raise_error(ActiveRecord::RecordInvalid, /Code : A unique coupon code is required/)
     end
   end
 

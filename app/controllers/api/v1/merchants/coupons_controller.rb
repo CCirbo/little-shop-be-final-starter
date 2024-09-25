@@ -1,6 +1,13 @@
 class Api::V1::Merchants::CouponsController < ApplicationController
     def index
       coupons = Coupon.where(merchant_id: params[:merchant_id])
+      if params[:status].present?
+        if params[:status] == "active"
+          coupons = coupons.where(active: true)
+        elsif params[:status] == "inactive"
+          coupons = coupons.where(active: false)
+        end
+      end
       render json: CouponSerializer.new(coupons)
     end
   
@@ -33,7 +40,7 @@ class Api::V1::Merchants::CouponsController < ApplicationController
   
    def change_status 
     coupon = Coupon.find(params[:coupon_id])
-    status = request.fullpath.split("/")[-1]
+    status = request.path.split('/').last
     coupon.activate_or_deactivate(status)
     coupon.save
     render json: CouponSerializer.new(coupon), status: :ok

@@ -1,8 +1,8 @@
 class Coupon < ApplicationRecord
   belongs_to :merchant
   has_many :invoices
-  validates :name, presence: true
-  validates :code, presence: true
+  validates :name, presence: { message: ": You must provide a coupon name." }
+  validates :code, presence: true, uniqueness: { message: ": A unique coupon code is required." }
   validates :dollar_off, presence: false
   validates :percent_off, presence: false
   validates :active, presence: false
@@ -27,9 +27,9 @@ class Coupon < ApplicationRecord
    
      # code validator
     # check all coupons and validate code uniqueness
-    if Coupon.exists?(code: self.code)
-      raise ArgumentError.new("Coupon code must be unique")
-    end
+    # if Coupon.exists?(code: self.code)
+    #   raise ArgumentError.new("Coupon code must be unique")
+    # end
     # require 'pry'; binding.pry
     # get merchant.invoice?? 
     # if coupon drops invoice below zero dollar amount it needs to be set to zero
@@ -49,6 +49,7 @@ class Coupon < ApplicationRecord
       raise ArgumentError.new("Merchant can only have a maximum of five active coupons")
     elsif status == "activate" 
       self.active = true
+    # elsif status == "deactivate" && 
     elsif status == "deactivate"
       self.active = false
     end
